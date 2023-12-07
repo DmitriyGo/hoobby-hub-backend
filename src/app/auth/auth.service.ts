@@ -11,17 +11,23 @@ import { JWTUserDTO, SignInDTO, SignUpDTO } from './dtos/user.dto';
 import {
   ACCESS_TOKEN_EXPIRES,
   REFRESH_TOKEN_EXPIRES,
-  SECRET,
+  JWT_SECRET,
 } from '../../constants/auth';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
+  private jwtSecret: string;
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
-  ) {}
+  ) {
+    this.jwtSecret = JWT_SECRET;
+    if (!this.jwtSecret) {
+      throw new Error('JWT_SECRET is not defined in the configuration');
+    }
+  }
 
   removeUser(email: string) {
     return this.usersService.removeBy({ email });
@@ -30,15 +36,16 @@ export class AuthService {
   createToken = (payload: JWTUserDTO, expiresInSeconds: number) => {
     return this.jwtService.signAsync(payload, {
       expiresIn: `${expiresInSeconds}ms`,
+      secret: this.jwtSecret,
     });
   };
 
-  crypt(stringToCrypt: string, salt: string): string {
-    return AES.encrypt(stringToCrypt, salt).toString();
+  crypt(stringToCrypt: string): string {
+    return AES.encrypt(stringToCrypt, this.jwtSecret).toString();
   }
 
-  decrypt(stringToDecrypt: string, salt: string): string {
-    const bytes = AES.decrypt(stringToDecrypt, salt);
+  decrypt(stringToDecrypt: string): string {
+    const bytes = AES.decrypt(stringToDecrypt, this.jwtSecret);
     return bytes.toString(enc.Utf8);
   }
 
@@ -54,10 +61,7 @@ export class AuthService {
       );
     }
 
-    if (
-      userDTO.password !==
-      this.decrypt(user.password, this.configService.get<string>(SECRET))
-    ) {
+    if (userDTO.password !== this.decrypt(user.password)) {
       throw new UnauthorizedException(
         `Cant find user with such credentials: ${JSON.stringify(userDTO)}`,
       );
@@ -94,10 +98,7 @@ export class AuthService {
       throw new BadRequestException('Email is already taken');
     }
 
-    const password = this.crypt(
-      userDTO.password,
-      this.configService.get<string>(SECRET),
-    );
+    const password = this.crypt(userDTO.password);
 
     const user = await this.usersService.create({
       email: userDTO.email,

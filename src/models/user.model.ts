@@ -5,10 +5,10 @@ import { UserRole } from './user-role';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Column()

@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne, PrimaryColumn } from 'typeorm';
 
-import { Action, Reaction } from './commands';
+import { Action } from './commands';
 import { User } from './user.model';
 
 @Entity()
@@ -10,9 +10,6 @@ export class Device {
 
   @Column({ default: '' })
   action: Action;
-
-  @Column({ default: '' })
-  reaction: Reaction;
 
   @Column({ default: '' })
   nfcData: string;

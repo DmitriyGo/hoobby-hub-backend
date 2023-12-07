@@ -1,8 +1,5 @@
 import { Entity, Column, ManyToOne, PrimaryColumn } from 'typeorm';
 
-import { Action, Reaction } from './commands';
-import { User } from './user.model';
-
 @Entity()
 export class Payment {
   @PrimaryColumn()

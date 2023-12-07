@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DevicesAdminController } from './devices-admin.controller';
 import { DevicesController } from './devices.controller';
 import { DevicesService } from './devices.service';
-import { SECRET } from '../../constants/auth';
+import { JWT_SECRET } from '../../constants/auth';
 import { Device } from '../../models/device.model';
 import { User } from '../../models/user.model';
 import { UsersModule } from '../users/users.module';
@@ -17,7 +17,7 @@ import { UsersModule } from '../users/users.module';
     ConfigModule,
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>(SECRET),
+        secret: JWT_SECRET,
       }),
       inject: [ConfigService],
     }),

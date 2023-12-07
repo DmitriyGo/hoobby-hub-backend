@@ -151,4 +151,12 @@ export class DevicesService {
 
     return this.repo.remove(entity);
   }
+
+  getDeviceLocation(id) {
+    const latitude = Math.random() * 180 - 90;
+    const longitude = Math.random() * 360 - 180;
+    return `Latitude: ${latitude.toFixed(6)}, Longitude: ${longitude.toFixed(
+      6,
+    )}`;
+  }
 }

@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthService } from './auth.service';
-import { SECRET } from '../../constants/auth';
+import { JWT_SECRET } from '../../constants/auth';
 import { User } from '../../models/user.model';
 import { UsersModule } from '../users/users.module';
 
@@ -30,7 +30,7 @@ describe('AuthService', () => {
         TypeOrmModule.forFeature([User]),
         JwtModule.registerAsync({
           useFactory: async (configService: ConfigService) => ({
-            secret: configService.get<string>(SECRET),
+            secret: configService.get<string>(JWT_SECRET),
           }),
           inject: [ConfigService],
         }),

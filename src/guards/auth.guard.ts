@@ -21,7 +21,7 @@ import {
   ACCESS_TOKEN_EXPIRES,
   REFRESH_TOKEN,
   REFRESH_TOKEN_EXPIRES,
-  SECRET,
+  JWT_SECRET,
 } from '../constants/auth';
 import { User } from '../models/user.model';
 
@@ -51,7 +51,7 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync<
         Partial<UserDTOVerified>
       >(token, {
-        secret: this.configService.get<string>(SECRET),
+        secret: JWT_SECRET,
       });
 
       delete payload.iat;

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,7 +8,7 @@ import {
   Post,
   Request,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { DevicesService } from './devices.service';
 import { ApproveDeviceDTO } from './dtos/approve-device.dto';
@@ -27,6 +28,13 @@ export class DevicesController {
   @UseAuth()
   @Post()
   @Serialize(DeviceDTO)
+  @ApiOperation({ summary: 'Add a new device' })
+  @ApiResponse({
+    status: 201,
+    description: 'The device has been successfully added.',
+    type: DeviceDTO,
+  })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
   async addDevice(
     @Request() req: AuthRequest,
     @Body() createDeviceDTO: CreateDeviceDTO,
@@ -88,6 +96,38 @@ export class DevicesController {
     return res[0];
   }
 
+  @UseAuth()
+  @Get('/:id/ping')
+  async ping(@Request() req: AuthRequest, @Param('id') id: string) {
+    if (Number.isNaN(+id)) {
+      throw new BadRequestException('Id is not a number');
+    }
+
+    return `Connection with device ${id} is established`;
+  }
+
+  @UseAuth()
+  @Get('/:id/find')
+  async alarm(@Request() req: AuthRequest, @Param('id') id: string) {
+    if (Number.isNaN(+id)) {
+      throw new BadRequestException('Id is not a number');
+    }
+
+    const cordinated = this.deviceService.getDeviceLocation(id);
+
+    return `Device ${id} is at ${cordinated}`;
+  }
+
+  @UseAuth()
+  @Get('/:id/sound-alarm')
+  async soundAlarm(@Request() req: AuthRequest, @Param('id') id: string) {
+    if (Number.isNaN(+id)) {
+      throw new BadRequestException('Id is not a number');
+    }
+
+    return `Alarm sound triggered on device ${id}`;
+  }
+
   @Post('/for-device/approve')
   async approveDevice(@Body() approveDeviceDTO: ApproveDeviceDTO) {
     return this.deviceService.approveDevice(approveDeviceDTO);
@@ -112,6 +152,15 @@ export class DevicesController {
   }
 
   @Post('/device-lost/:id')
+  @ApiOperation({ summary: 'Mark a device as lost' })
+  @ApiBody({ type: LostDeviceDTO, description: 'Details of the lost device' })
+  @ApiResponse({
+    status: 200,
+    description: 'Device marked as lost',
+    type: DeviceDTO,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid data provided' })
+  @ApiResponse({ status: 404, description: 'Device not found' })
   setDeviceIsLost(@Body() lostDTO: LostDeviceDTO) {
     return this.deviceService.lostDevice(lostDTO);
   }

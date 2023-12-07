@@ -1,6 +1,6 @@
 import { Expose } from 'class-transformer';
 
-import { Action, Reaction } from '../../../models/commands';
+import { Action } from '../../../models/commands';
 
 export class DeviceDTO {
   @Expose()
@@ -8,9 +8,6 @@ export class DeviceDTO {
 
   @Expose()
   action: Action;
-
-  @Expose()
-  reaction: Reaction;
 
   @Expose()
   nfcData: string;
